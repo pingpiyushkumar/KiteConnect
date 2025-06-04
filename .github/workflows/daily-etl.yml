@@ -26,4 +26,6 @@ jobs:
           printf '%s' "${{ secrets.GCP_KEY_JSON }}" > key.json
 
       - name: Run ETL script
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: key.json
         run: python main.py

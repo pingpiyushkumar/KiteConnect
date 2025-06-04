@@ -10,7 +10,7 @@ def main():
     # df['timestamp'] = pd.to_datetime(df['timestamp'])
 
     # Set credentials
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "key.json"
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'key.json'
 
     # BigQuery client
     client = bigquery.Client()

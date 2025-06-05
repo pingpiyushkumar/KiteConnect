@@ -1,4 +1,4 @@
-"Trade ID","Fill time","Type","Instrument","Product","Qty.","Avg. Price",""
+"Trade ID","Fill time","Type","Instrument","Product","Qty","Avg Price",""
 "190145090","2025-06-02 18:38:59","BUY","NATGASMINI25JULFUT","MIS",1,324.4,""
 "190144561","2025-06-02 18:38:49","BUY","NATGASMINI25JUNFUT","MIS",1,317.7,""
 "190112297","2025-06-02 17:31:12","BUY","NATGASMINI25JUNFUT","NRML",1,316.9,""

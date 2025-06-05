@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "kiteconnect2025",
+  "private_key_id": "fec63507bd433b3c7acb813ded290a912a4d61e1",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC6iEhgOmshLlZD\ntP/OirdvabxIy0hJCJ+WPLPHc2JhWp+Uf+JafoAlCorHd9r6rWL3KvFeKyuGEbe7\nTMYzPOQml6wfFzxZlNJWEEfz8Irvx052CC0fhtsXsQh77a7BX8GjplGchUbLg9qX\nso3Ngca5C9VJkKIKq1qQXYvsf2GZbcZyasvIXxiaAPFwWWKiQsLfGW+XQ0WZJ9p0\nwA6Ud1JYDbLJemRbx4AAlVMT4PnivBX7t+ehuM48iHIHc3WTSZ176HX9L6hg7Kep\nS0cWCmUhLvbVVu4Uv3RfCs+6vSdGZx3mHxHkZH6+Ft3hhA8cVKhKT+1P+1qLdw+v\n1JiUzXmVAgMBAAECggEACBFN5A+Sw5gf9gS1jabVQTXXBWT5ZuM/F73fXrCAYEqN\nnVwcm6JeA3wdvXvTFkV6gssyLkr6sm1Av5KV/fBTw9GKibu1CgDUShGhMw1DzRQX\nMiavYO4xuqgXAFkq1kVAeEYAwJ7JDZNR2H7KAEntIOLAolJll8WKgLTzENL/kyWn\ntBPlE/CkAklPg7RbmwdNqmQg136n91YLclh0kt7v105uyAgKGZzB/CzpFRNeC67Y\nDyuRThzjiTJF/1qHdWNWNSvJMZ5sVnTNkiFoA5DArtjC2hxuMCAxYFiFhZwcL7TU\n1Iz1g6IJ6v+6INp0Nu6Q4OA2s/WWRi/LZWbf5TMSHwKBgQD9UwPUbvgBCGgHcI88\nKReIXatuedMT8QSwlFijbsXEfVX3P/uwsyUiLF3eJyZ+R3nzZa3t1/UlsidB5leu\npJGVxiINPxUzvjmTxA6EEnmArAU0m3TyRznOjBYAWKQqrk/UC/8Vq9eSErV1hA6H\n/9zlUPxttlBcojsDzFFDRQ4uZwKBgQC8gKnUumHQLkQrs9h7hA9kzQroLT5ja+VR\nIPGExHe7n1sD+TtQenNZLwnegU1qZZNaLJV4fB7RlNQNWKZ5UEdDIxpTHt244UaP\nlsFJfyOWgZYqMOp9zqlpoAcFSjJ5YcOyrJRlecDxF24hdb8hBQFrgiVuJ1jfrPzc\n87NDmlniowKBgBJAkvwRaskYQ/aVQ5zAETQAG8P//xdmvEHEzoYoCxPXPARulcHr\nhndp3vGMvJdIqx7AasHCV6V5qp5y7EpnDR5PglCWBP8Pa7Kb47fcZOjCfDWIJer2\n+tFJAqTPvjRdDt9mZeC32vZpZq2q8CkYZGAZb7av9iZWgg4KAKjqJtVtAoGAHIVr\nLOC2hAU8E1C25JlqqtnLWK3fzrM4kznk0S3Y3+6Qmt1O+DJO2aOgXqY5zGtqDC7K\nvtwo3ZUjMJHFPn3DCol5JjJ5YcvUHU22GSS/gbpBukiEclyejXjFFyvOz0bXkWVD\nXsc5RkFBTJbAQIK9YELk3vHdJJrL97J34TatevkCgYEAg0uKos5i+/UDhWMvoPUk\nsjgxvosKBYh28RrE9fqBMRfmWX7uM9dqpr4UQcyw+n47jssnCZrk1ajKBH+0SgN9\nbmpzZUuU5uv+8t5o3Jxs/udwUaIfgyVt3wx08P4rpnyxllbzUXYD0IBrzKw8NB/+\nH4z9/WJVn11DiO642cT9WL8=\n-----END PRIVATE KEY-----\n",
+  "client_email": "kiteconnectgithubetl@kiteconnect2025.iam.gserviceaccount.com",
+  "client_id": "106932191233241627151",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/kiteconnectgithubetl%40kiteconnect2025.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

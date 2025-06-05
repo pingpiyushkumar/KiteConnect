@@ -21,15 +21,5 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Set up GCP credentials
-        run: |
-          printf '%s' "${{ secrets.GCP_KEY_JSON }}" > key.json
-
-      - name: Debug key.json file (first 10 lines)
-        run: |
-          head -n 10 key.json
-
-      - name: Run ETL script
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: key.json          
+      - name: Run ETL script      
         run: python main.py

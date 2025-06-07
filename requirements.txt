@@ -1,3 +1,6 @@
 pandas
 google-cloud-bigquery
 pyarrow
+gspread 
+oauth2client
+pandas-gbq

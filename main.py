@@ -1,24 +1,57 @@
 import pandas as pd
 from google.cloud import bigquery
 import os
+from kiteconnect import KiteConnect
+from google.oauth2.service_account import Credentials
+import gspread
 
 def main():
-    # Load CSV data (you can fetch from API instead)
-    df = pd.read_csv('trades.csv')
+    # Load local CSV file (used here as placeholder or for backup/testing)
+    # df = pd.read_csv('trades.csv')
 
-    # Example transformation
-    # df['timestamp'] = pd.to_datetime(df['timestamp'])
-
-    # Set credentials
+    # Set environment variable for Google Cloud authentication (used by BigQuery)
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'key.json'
 
-    # BigQuery client
-    client = bigquery.Client()
-    table_id = "kiteconnect2025.test.test_trades"  # Replace with your IDs
+    # Load service account credentials for Google Sheets access
+    creds = Credentials.from_service_account_file("key.json", scopes=["https://www.googleapis.com/auth/spreadsheets.readonly", "https://www.googleapis.com/auth/drive.readonly"])
+    sheets_client = gspread.authorize(creds)
 
-    job = client.load_table_from_dataframe(df, table_id)
-    job.result()
-    print("Upload complete.")
+    # Open Google Sheet by its spreadsheet ID and select a specific sheet by its sheet ID
+    spreadsheet = sheets_client.open_by_key('18n9uF3WYJX6e65mdVl7XfMFEuPXW2n-mP2CLxrgCHXU')
+    sheet = [ws for ws in spreadsheet.worksheets() if ws.id == 1183784576][0]
+
+    # Read Kite Connect API credential values from a named range in the selected sheet
+    API_credentials_df = pd.DataFrame(sheet.get('Credentials_Range'))
+    api_key = API_credentials_df.iloc[0,1]          
+    secret = API_credentials_df.iloc[1,1]           
+    request_token = API_credentials_df.iloc[2,1]    
+
+    # Authenticate with KiteConnect using request token
+    kite = KiteConnect(api_key=api_key)
+    data = kite.generate_session(request_token, api_secret=secret)
+    kite.set_access_token(data["access_token"])
+
+    # Fetch trades and orders from Kite API
+    trades = pd.DataFrame(kite.trades())
+    orders = pd.DataFrame(kite.orders())    
+
+    # Check if there are any orders before attempting to upload
+    if orders.empty:
+        print("Warning: No orders/trades to upload.")
+    else:
+        # Initialize BigQuery client
+        bigquery_client = bigquery.Client()
+        trades_table_id = "kiteconnect2025.tradebook.trades"
+        orders_table_id = "kiteconnect2025.tradebook.orders"
+
+        # Upload trades and orders data to BigQuery
+        job = bigquery_client.load_table_from_dataframe(trades, trades_table_id)
+        job.result()  # Wait for the upload job to complete
+        print("Trades upload complete.")
+
+        job = bigquery_client.load_table_from_dataframe(orders, orders_table_id)
+        job.result()  # Wait for the upload job to complete
+        print("Orders upload complete.")
 
 if __name__ == "__main__":
     main()

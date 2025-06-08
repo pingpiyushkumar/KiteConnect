@@ -22,13 +22,11 @@ jobs:
         run: |
           pip install -r requirements.txt
           
-      - name: Set up GCP credentials
-        run: echo '${{ secrets.GCP_KEY_JSON }}' > key.json
-        env:
-          GCP_KEY_JSON: ${{ secrets.GCP_KEY_JSON }}
-          
-      - name: Show GCP key json start
-        run: head -20 key.json          
+      - name: Authenticate to GCP
+        id: 'auth'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: ${{ secrets.GCP_KEY_JSON }}        
 
       - name: Run ETL script
         run: python main.py

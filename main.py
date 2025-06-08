@@ -30,44 +30,58 @@ def main():
     api_key = API_credentials_df.iloc[0,1]          
     secret = API_credentials_df.iloc[1,1]           
     request_token = API_credentials_df.iloc[2,1]
+    access_token = API_credentials_df.iloc[3,1]    
     print("Finished Reading from the sheet: Loaded KiteConnect Credentials")
 
-    # Authenticate with KiteConnect using request token
-    print("Authenticating KiteConnect session...")
-    kite = KiteConnect(api_key=api_key)
-    data = kite.generate_session(request_token, api_secret=secret)
-    kite.set_access_token(data["access_token"])
-    print("KiteConnect session established.")
+    def fetch_and_upload_trades_data(kite, bigquery_client):
+            # Fetch trades and orders from Kite API
+            trades = pd.DataFrame(kite.trades())
+            orders = pd.DataFrame(kite.orders())    
+
+            # Check if there are any orders before attempting to upload
+            if orders.empty:
+                print("Warning: No orders/trades to upload.")
+            else:
+                # Initialize BigQuery client
+                print("Initializing BigQuery client...")
+                ## bigquery_client = bigquery.Client()
+                trades_table_id = "kiteconnect2025.tradebook.trades"
+                orders_table_id = "kiteconnect2025.tradebook.orders"
+
+                # Upload trades and orders data to BigQuery
+                job = bigquery_client.load_table_from_dataframe(trades, trades_table_id)
+                job.result()  # Wait for the upload job to complete
+                print("Trades upload complete.")
+        
+                job = bigquery_client.load_table_from_dataframe(orders, orders_table_id)
+                job.result()  # Wait for the upload job to complete
+                print("Orders upload complete.")
     
-    # Paste access_token (with timestamp in IST) for future sessions for the same day
-    sheet.update_acell("B11", data["access_token"])
-    now_ist = datetime.utcnow() + timedelta(hours=5, minutes=30)
-    timestamp_ist = now_ist.strftime('%Y-%m-%d %H:%M:%S')
-    sheet.update_acell("C11", timestamp_ist)
-    print("Pushed obtained access token back to the Google Sheet.")
+    try:
+        # Try Authenticating with KiteConnect using existing access token (if still valid for the day)
+        kite = KiteConnect(api_key=api_key)
+        kite.set_access_token(access_token)
+        kite.profile()
+        fetch_and_upload_trades_data(kite, bigquery.Client()) # doing table write operation when access token already exists
+    
+    except Exception as e:
+            
+        # Authenticate with KiteConnect using request token 
+        print("Authenticating KiteConnect session...")
+        kite = KiteConnect(api_key=api_key)
+        data = kite.generate_session(request_token, api_secret=secret)
+        kite.set_access_token(data["access_token"])
+        print("KiteConnect session established.")
+        
+        # Paste access_token (with timestamp in IST) for future sessions for the same day
+        sheet.update_acell("B11", data["access_token"])
+        now_ist = datetime.utcnow() + timedelta(hours=5, minutes=30)
+        timestamp_ist = now_ist.strftime('%Y-%m-%d %H:%M:%S')
+        sheet.update_acell("C11", timestamp_ist)
+        print("Pushed obtained access token back to the Google Sheet.")
+        # Not doing table write operation in the initial authentication of the day, 
+        # write back should be effective when the valid access token is already present in the sheet and triggered by the automated cron job at 11:35 pm everyday
 
-    # Fetch trades and orders from Kite API
-    trades = pd.DataFrame(kite.trades())
-    orders = pd.DataFrame(kite.orders())    
-
-    # Check if there are any orders before attempting to upload
-    if orders.empty:
-        print("Warning: No orders/trades to upload.")
-    else:
-        # Initialize BigQuery client
-        print("Initializing BigQuery client...")
-        bigquery_client = bigquery.Client()
-        trades_table_id = "kiteconnect2025.tradebook.trades"
-        orders_table_id = "kiteconnect2025.tradebook.orders"
-
-        # Upload trades and orders data to BigQuery
-        job = bigquery_client.load_table_from_dataframe(trades, trades_table_id)
-        job.result()  # Wait for the upload job to complete
-        print("Trades upload complete.")
-
-        job = bigquery_client.load_table_from_dataframe(orders, orders_table_id)
-        job.result()  # Wait for the upload job to complete
-        print("Orders upload complete.")
 
 if __name__ == "__main__":
     main()

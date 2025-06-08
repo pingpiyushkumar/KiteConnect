@@ -3,11 +3,12 @@ name: Daily Trade ETL
 on:
   schedule:
     - cron: '0 6 * * *'  # Every day at 6 AM UTC
-  workflow_dispatch:      # Allow manual run
+  workflow_dispatch:       # Allow manual run
 
 jobs:
   run-etl:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -20,6 +21,12 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+          
+      - name: Set up GCP credentials
+        run: |
+          echo "$GCP_KEY_JSON" > key.json
+        env:
+          GCP_KEY_JSON: ${{ secrets.gcp_key_json }}
 
-      - name: Run ETL script      
+      - name: Run ETL script
         run: python main.py

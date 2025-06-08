@@ -1,4 +1,5 @@
 import pandas as pd
+from datetime import datetime, timedelta
 from google.cloud import bigquery
 import os
 from kiteconnect import KiteConnect
@@ -38,8 +39,11 @@ def main():
     kite.set_access_token(data["access_token"])
     print("KiteConnect session established.")
     
-    # Paste access_token into cell B11 for future sessions for the same day
+    # Paste access_token (with timestamp in IST) for future sessions for the same day
     sheet.update_acell("B11", data["access_token"])
+    now_ist = datetime.utcnow() + timedelta(hours=5, minutes=30)
+    timestamp_ist = now_ist.strftime('%Y-%m-%d %H:%M:%S')
+    sheet.update_acell("C11", timestamp_ist)
     print("Pushed obtained access token back to the Google Sheet.")
 
     # Fetch trades and orders from Kite API

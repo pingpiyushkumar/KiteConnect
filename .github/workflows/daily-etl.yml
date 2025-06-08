@@ -26,7 +26,7 @@ jobs:
         run: |
           printf '%s' "$GCP_KEY_JSON" > key.json
         env:
-          GCP_KEY_JSON: ${{ secrets.gcp_key_json }}
+          GCP_KEY_JSON: ${{ secrets.GCP_KEY_JSON }}
           
       - name: Show GCP key json start
         run: head -20 key.json          

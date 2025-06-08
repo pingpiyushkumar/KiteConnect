@@ -47,6 +47,7 @@ def main():
         print("Warning: No orders/trades to upload.")
     else:
         # Initialize BigQuery client
+        print("Initializing BigQuery client...")
         bigquery_client = bigquery.Client()
         trades_table_id = "kiteconnect2025.tradebook.trades"
         orders_table_id = "kiteconnect2025.tradebook.orders"

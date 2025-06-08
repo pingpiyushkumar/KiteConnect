@@ -21,7 +21,7 @@ def main():
     sheet = [ws for ws in spreadsheet.worksheets() if ws.id == 1183784576][0]
 
     # Read Kite Connect API credential values from a named range in the selected sheet
-    API_credentials_df = pd.DataFrame(sheet.get('Credentials_Range'))
+    API_credentials_df = pd.DataFrame(sheet.get('KiteConnect_Credentials')[1:], columns=sheet.get('KiteConnect_Credentials')[0])
     api_key = API_credentials_df.iloc[0,1]          
     secret = API_credentials_df.iloc[1,1]           
     request_token = API_credentials_df.iloc[2,1]    

@@ -14,7 +14,7 @@ def main():
 
     # Load service account credentials for GCP access
     print("Loading GCP service account credentials...")
-    creds = Credentials.from_service_account_file(gcp_credentials_path, scopes=["https://www.googleapis.com/auth/spreadsheets.readonly", "https://www.googleapis.com/auth/drive.readonly"])
+    creds = Credentials.from_service_account_file(gcp_credentials_path, scopes=["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"])
     print("GCP Authenticated!!!")
 
     # Open Google Sheet by its spreadsheet ID and select a specific sheet object by its sheet ID

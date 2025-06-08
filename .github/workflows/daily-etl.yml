@@ -23,8 +23,7 @@ jobs:
           pip install -r requirements.txt
           
       - name: Set up GCP credentials
-        run: |
-          printf '%s' "$GCP_KEY_JSON" > key.json
+        run: echo '${{ secrets.GCP_KEY_JSON }}' > key.json
         env:
           GCP_KEY_JSON: ${{ secrets.GCP_KEY_JSON }}
           

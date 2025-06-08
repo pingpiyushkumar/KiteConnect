@@ -38,7 +38,7 @@ def main():
     kite.set_access_token(data["access_token"])
     print("KiteConnect session established.")
     
-    # Paste access_token into cell B11 for future sessions for the day
+    # Paste access_token into cell B11 for future sessions for the same day
     sheet.update_acell("B11", data["access_token"])
     print("Pushed obtained access token back to the Google Sheet.")
 

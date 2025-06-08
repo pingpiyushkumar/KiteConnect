@@ -2,7 +2,7 @@ name: Daily Trade ETL
 
 on:
   schedule:
-    - cron: '0 6 * * *'  # Every day at 6 AM UTC
+    - cron: '5 18 * * 1-5'  # Runs Mon-Fri at 6:05 PM UTC i.e 11:35 PM IST
   workflow_dispatch:       # Allow manual run
 
 jobs:

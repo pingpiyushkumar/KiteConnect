@@ -10,10 +10,10 @@ def main():
     # df = pd.read_csv('trades.csv')
 
     # Set environment variable for Google Cloud authentication (used by BigQuery)
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'key.json'
+    gcp_credentials_path = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
 
     # Load service account credentials for Google Sheets access
-    creds = Credentials.from_service_account_file("key.json", scopes=["https://www.googleapis.com/auth/spreadsheets.readonly", "https://www.googleapis.com/auth/drive.readonly"])
+    creds = Credentials.from_service_account_file(gcp_credentials_path, scopes=["https://www.googleapis.com/auth/spreadsheets.readonly", "https://www.googleapis.com/auth/drive.readonly"])
     sheets_client = gspread.authorize(creds)
 
     # Open Google Sheet by its spreadsheet ID and select a specific sheet by its sheet ID

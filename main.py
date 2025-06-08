@@ -17,7 +17,7 @@ def main():
     creds = Credentials.from_service_account_file(gcp_credentials_path, scopes=["https://www.googleapis.com/auth/spreadsheets.readonly", "https://www.googleapis.com/auth/drive.readonly"])
     print("GCP Authenticated!!!")
 
-    # Open Google Sheet by its spreadsheet ID and select a specific sheet by its sheet ID
+    # Open Google Sheet by its spreadsheet ID and select a specific sheet object by its sheet ID
     sheets_client = gspread.authorize(creds)
     print("Google Sheets Client Authorized")
     spreadsheet = sheets_client.open_by_key('18n9uF3WYJX6e65mdVl7XfMFEuPXW2n-mP2CLxrgCHXU')
@@ -37,6 +37,10 @@ def main():
     data = kite.generate_session(request_token, api_secret=secret)
     kite.set_access_token(data["access_token"])
     print("KiteConnect session established.")
+    
+    # Paste access_token into cell B11 for future sessions for the day
+    sheet.update_acell("B11", data["access_token"])
+    print("Pushed obtained access token back to the Google Sheet.")
 
     # Fetch trades and orders from Kite API
     trades = pd.DataFrame(kite.trades())

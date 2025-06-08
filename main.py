@@ -9,27 +9,34 @@ def main():
     # Load local CSV file (used here as placeholder or for backup/testing)
     # df = pd.read_csv('trades.csv')
 
-    # Set environment variable for Google Cloud authentication (used by BigQuery)
+    # Set environment variable for Google Cloud authentication (used by BigQuery and Sheets API)
     gcp_credentials_path = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
 
-    # Load service account credentials for Google Sheets access
+    # Load service account credentials for GCP access
+    print("Loading GCP service account credentials...")
     creds = Credentials.from_service_account_file(gcp_credentials_path, scopes=["https://www.googleapis.com/auth/spreadsheets.readonly", "https://www.googleapis.com/auth/drive.readonly"])
-    sheets_client = gspread.authorize(creds)
+    print("GCP Authenticated!!!")
 
     # Open Google Sheet by its spreadsheet ID and select a specific sheet by its sheet ID
+    sheets_client = gspread.authorize(creds)
+    print("Google Sheets Client Authorized")
     spreadsheet = sheets_client.open_by_key('18n9uF3WYJX6e65mdVl7XfMFEuPXW2n-mP2CLxrgCHXU')
     sheet = [ws for ws in spreadsheet.worksheets() if ws.id == 1183784576][0]
+    print("Opened Selected Sheet in the Spreadsheet")
 
     # Read Kite Connect API credential values from a named range in the selected sheet
     API_credentials_df = pd.DataFrame(sheet.get('KiteConnect_Credentials')[1:], columns=sheet.get('KiteConnect_Credentials')[0])
     api_key = API_credentials_df.iloc[0,1]          
     secret = API_credentials_df.iloc[1,1]           
-    request_token = API_credentials_df.iloc[2,1]    
+    request_token = API_credentials_df.iloc[2,1]
+    print("Finished Reading from the sheet: Loaded KiteConnect Credentials")
 
     # Authenticate with KiteConnect using request token
+    print("Authenticating KiteConnect session...")
     kite = KiteConnect(api_key=api_key)
     data = kite.generate_session(request_token, api_secret=secret)
     kite.set_access_token(data["access_token"])
+    print("KiteConnect session established.")
 
     # Fetch trades and orders from Kite API
     trades = pd.DataFrame(kite.trades())

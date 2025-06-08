@@ -24,9 +24,12 @@ jobs:
           
       - name: Set up GCP credentials
         run: |
-          echo "$GCP_KEY_JSON" > key.json
+          printf '%s' "$GCP_KEY_JSON" > key.json
         env:
           GCP_KEY_JSON: ${{ secrets.gcp_key_json }}
+          
+      - name: Show GCP key json start
+        run: head -20 key.json          
 
       - name: Run ETL script
         run: python main.py

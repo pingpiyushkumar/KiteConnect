@@ -36,7 +36,11 @@ def main():
     def fetch_and_upload_trades_data(kite, bigquery_client):
             # Fetch trades and orders from Kite API
             trades = pd.DataFrame(kite.trades())
-            orders = pd.DataFrame(kite.orders())    
+            orders = pd.DataFrame(kite.orders())
+            
+            #dropping the 'meta' column for the pyarrow lib to able to upload the dataframe into bigquery, 'meta' col can be empty which is problematic for pyarrow.
+            if 'meta' in orders.columns:
+                orders = orders.drop(columns=['meta'])  
 
             # Check if there are any orders before attempting to upload
             if orders.empty:

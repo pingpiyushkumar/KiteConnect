@@ -37,6 +37,11 @@ def main():
             # Fetch trades and orders from Kite API
             trades = pd.DataFrame(kite.trades())
             orders = pd.DataFrame(kite.orders())
+
+            #Fetch Positions data from Kite API
+            positions=kite.positions()
+            positions_day = pd.DataFrame(positions['day'])
+            positions_net = pd.DataFrame(positions['net'])
             
             #dropping the 'meta' column for the pyarrow lib to able to upload the dataframe into bigquery, 'meta' col can be empty which is problematic for pyarrow.
             if 'meta' in orders.columns:
@@ -51,8 +56,10 @@ def main():
                 ## bigquery_client = bigquery.Client()
                 trades_table_id = "kiteconnect2025.tradebook.trades"
                 orders_table_id = "kiteconnect2025.tradebook.orders"
+                positions_day_table_id = "kiteconnect2025.tradebook.positions_day"
+                positions_net_table_id = "kiteconnect2025.tradebook.positions_net"
 
-                # Upload trades and orders data to BigQuery
+                # Upload trades, orders and positions data to BigQuery
                 job = bigquery_client.load_table_from_dataframe(trades, trades_table_id)
                 job.result()  # Wait for the upload job to complete
                 print("Trades upload complete.")
@@ -60,6 +67,15 @@ def main():
                 job = bigquery_client.load_table_from_dataframe(orders, orders_table_id)
                 job.result()  # Wait for the upload job to complete
                 print("Orders upload complete.")
+                
+                job = bigquery_client.load_table_from_dataframe(positions_day, positions_day_table_id)
+                job.result()  # Wait for the upload job to complete
+                print("Positions-Day upload complete.")
+
+                job = bigquery_client.load_table_from_dataframe(positions_net, positions_net_table_id)
+                job.result()  # Wait for the upload job to complete
+                print("Positions-Net upload complete.")
+                
     
     try:
         # Try Authenticating with KiteConnect using existing access token (if still valid for the day)

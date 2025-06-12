@@ -28,7 +28,8 @@ The main ETL script:
 - Stores the new access token (if generated) and timestamp back in the sheet
 - Fetches orders and trades
 - Uploads them to BigQuery if available
-- Avoids duplicate BigQuery writes on the first login by design.
+- Clears the access token from the Google sheet after successful upload.
+- Avoids duplicate BigQuery writes on the first login of the day by design
 
 ### 2. `key.json`
 This is the **GCP service account JSON key** stored securely in **GitHub Secrets**. It is used to authenticate with:
@@ -39,3 +40,9 @@ The file is dynamically created in the GitHub workflow using:
 
 ```yaml
 echo "$GCP_KEY_JSON" > key.json
+```
+
+### 2. `AppsScript`
+
+- Detects changes in the request_token cell and updates the timestamp of the change in the adjacent cell
+- Also, as soon as the change is detected, it triggers the GitHub Workflow from the Appscript.

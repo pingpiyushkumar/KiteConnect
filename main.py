@@ -33,7 +33,7 @@ def main():
     access_token = API_credentials_df.iloc[3,1]    
     print("Finished Reading from the sheet: Loaded KiteConnect Credentials")
 
-    def fetch_and_upload_trades_data(kite, bigquery_client):
+    def fetch_and_upload_trades_data(kite, bigquery_client, sheet):
             # Fetch trades and orders from Kite API
             trades = pd.DataFrame(kite.trades())
             orders = pd.DataFrame(kite.orders())
@@ -75,14 +75,19 @@ def main():
                 job = bigquery_client.load_table_from_dataframe(positions_net, positions_net_table_id)
                 job.result()  # Wait for the upload job to complete
                 print("Positions-Net upload complete.")
-                
+
+                print("All uploads complete. Flushing access token...")
+                sheet.update_acell("B11", "")
+                sheet.update_acell("C11", "")
+                print("Access token and timestamp cleared from sheet.")
+                        
     
     try:
         # Try Authenticating with KiteConnect using existing access token (if still valid for the day)
         kite = KiteConnect(api_key=api_key)
         kite.set_access_token(access_token)
         kite.profile()
-        fetch_and_upload_trades_data(kite, bigquery.Client()) # doing table write operation when access token already exists
+        fetch_and_upload_trades_data(kite, bigquery.Client(), sheet) # doing table write operation when access token already exists
     
     except Exception as e:
             

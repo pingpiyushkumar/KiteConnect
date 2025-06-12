@@ -42,7 +42,7 @@ The file is dynamically created in the GitHub workflow using:
 echo "$GCP_KEY_JSON" > key.json
 ```
 
-### 2. `AppsScript`
+### 3. `AppsScript`
 
 - Detects changes in the request_token cell and updates the timestamp of the change in the adjacent cell
 - Also, as soon as the change is detected, it triggers the GitHub Workflow from the Appscript.

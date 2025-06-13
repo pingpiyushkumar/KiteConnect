@@ -5,7 +5,7 @@ import os
 import logging
 from kiteconnect import KiteConnect
 from google.oauth2.service_account import Credentials
-import spread
+import gspread
 
 def main():
     

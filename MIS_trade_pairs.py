@@ -9,8 +9,9 @@ import gspread
 
 def main():
     
-    # Set up GCP authentication and initialize BigQuery client
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'key.json'
+    # Set environment variable for Google Cloud authentication (used by BigQuery)
+    gcp_credentials_path = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
+    print("GCP Authenticated!!!")
     bigquery_client = bigquery.Client()
     
     # Load trades data from bigquery table into a dataframe and drop duplicate rows

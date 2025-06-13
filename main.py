@@ -50,6 +50,12 @@ def main():
             # Check if there are any orders before attempting to upload
             if orders.empty:
                 print("Warning: No orders/trades to upload.")
+                
+                print("Flushing access token...")
+                sheet.update_acell("B11", "")
+                sheet.update_acell("C11", "")
+                print("Access token and timestamp cleared from sheet.")
+                
             else:
                 # Initialize BigQuery client
                 print("Initializing BigQuery client...")

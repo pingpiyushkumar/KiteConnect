@@ -97,7 +97,7 @@ def main():
                     sell_times = [pd.to_datetime(t['order_timestamp']) for t in sell_trades]
                     buy_time = min(buy_times)
                     sell_time = max(sell_times)
-                    hold_time = sell_time - buy_time            
+                    hold_time_mins = round(abs((sell_time - buy_time).total_seconds()) / 60)   
 
                     # Save the trade pair info as one result row
                     MIS_trade_pairs.append({
@@ -115,7 +115,7 @@ def main():
                         'product': buy_trades[0]['product'] if buy_trades else sell_trades[0]['product'],
                         'buy_time': buy_time,
                         'sell_time': sell_time,
-                        'hold_time': hold_time
+                        'hold_time_mins': hold_time_mins
                     })
 
                     # Reset everything to start tracking the next trade-pair

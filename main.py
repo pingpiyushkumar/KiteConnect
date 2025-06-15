@@ -5,6 +5,8 @@ import os
 from kiteconnect import KiteConnect
 from google.oauth2.service_account import Credentials
 import gspread
+from gspread_dataframe import set_with_dataframe
+
 
 def main():
     # Load local CSV file (used here as placeholder or for backup/testing)
@@ -51,12 +53,21 @@ def main():
             if orders.empty:
                 print("Warning: No orders/trades to upload.")
                 
+                # test block: Append trades to Google Sheet as backup
+                trades = pd.read_csv('trades.csv')
+                backup_sheet = [ws for ws in spreadsheet.worksheets() if ws.id == 0][0]   
+                next_row_index = len(backup_sheet.get_all_values()) + 1                     # Find the next empty row in the sheet
+                include_header_flag = True if next_row_index == 1 else False                # Check if next_row_index =1, i.e sheet is empty, set the header flag as True
+                set_with_dataframe(backup_sheet, trades, row=next_row_index, include_column_header=include_header_flag)
+                print("Trades appended to backup sheet.")
+            
                 print("Flushing access token...")
                 sheet.update_acell("B11", "")
                 sheet.update_acell("C11", "")
                 print("Access token and timestamp cleared from sheet.")
                 
             else:
+                
                 # Initialize BigQuery client
                 print("Initializing BigQuery client...")
                 ## bigquery_client = bigquery.Client()

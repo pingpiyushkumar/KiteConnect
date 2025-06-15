@@ -7,3 +7,4 @@ oauth2client
 pandas-gbq
 db-dtypes
 google-cloud-bigquery-storage
+gspread-dataframe

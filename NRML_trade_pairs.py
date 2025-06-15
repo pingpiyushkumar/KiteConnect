@@ -77,6 +77,8 @@ def main():
 
         # Process each scrip globally
         for symbol, trades in grouped:
+            print(symbol)
+            print(symbol, trades)
           
             # Sort trades for that symbol chronologically (and by order ID for tie-breaking)
             trades = trades.sort_values(by=['order_timestamp', 'order_id'])

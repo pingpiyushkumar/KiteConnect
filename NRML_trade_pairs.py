@@ -71,14 +71,12 @@ def main():
 
         # This will store the results in a list: one row per completed NRML trade-pair cycle
         NRML_trade_pairs = []
-        print(trades_base['tradingsymbol']
+        print(trades_base['tradingsymbol'])
         # Group trades only by the tradingsymbol (no date) to allow matching across days
         grouped = trades_base[trades_base['product'] == 'NRML'].groupby(['tradingsymbol'])
 
         # Process each scrip globally
         for symbol, trades in grouped:
-            print(symbol)
-            print(symbol, trades)
           
             # Sort trades for that symbol chronologically (and by order ID for tie-breaking)
             trades = trades.sort_values(by=['order_timestamp', 'order_id'])
@@ -173,11 +171,9 @@ def main():
             if tradingsymbol.startswith(base):
                 return base, contract_lots.get(base, 1)
         return None  # or fallback to tradingsymbol if needed
-    print(NRML_trade_pairs.dtypes)
-    print(NRML_trade_pairs.head())
+
     NRML_trade_pairs[['contract_base', 'lot_size']] = NRML_trade_pairs.apply(lambda row: extract_contract_base(row['tradingsymbol'], valid_bases, contract_lots), axis=1, result_type='expand')
     NRML_trade_pairs['actual_pnl'] = NRML_trade_pairs['pnl_pips']* NRML_trade_pairs['lot_size']
-    print(NRML_trade_pairs.head())
 
     # Upload MIS_trade_pairs data into bigquery table
     job = bigquery_client.load_table_from_dataframe(NRML_trade_pairs, "kiteconnect2025.pnl_book.NRML_trade_pairs")

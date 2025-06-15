@@ -140,7 +140,7 @@ def main():
                         'buy_time': buy_time,
                         'sell_time': sell_time,
                         'hold_time_mins': hold_time_mins,
-                        'trade_date': buy_time.date() # trade date is based on when it's first opened
+                        'trade_date': sell_time.date() # final trade date is based on when it's closed - the P&L realization day
                     })
 
                     # Update unmatched quantities i.e total running qty

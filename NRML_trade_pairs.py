@@ -17,10 +17,10 @@ def main():
     # Load trades data from bigquery table into a dataframe and drop duplicate rows
     trades_df = bigquery_client.query("select * from kiteconnect2025.tradebook.trades").to_dataframe()
     trades_df.drop_duplicates(inplace= True)
-    
+    display(trades_df)
     # Extract trade date from timestamp
     trades_df['trade_date'] = pd.to_datetime(trades_df['order_timestamp']).dt.date
-
+    
     # NOTE: The following lines of code is commented out for a possible future code review or expansion...
     # Create a composite sort key to sort trades in logical order
     # trades_df['sort_key'] = list(zip(trades_df['order_timestamp'], trades_df['order_id']))
@@ -38,7 +38,7 @@ def main():
         'average_price', 'quantity', 'transaction_type']
 
     trades_base = trades_df[final_cols].sort_values(by=['trade_date', 'order_timestamp', 'tradingsymbol'])
-    print(trades_base['tradingsymbol']
+    print(trades_base['tradingsymbol'])
     # FIFO Logic to generate trade-pairs for NRML orders (BUYs matched with SELLs, per symbol, across multiple days)
     def build_NRML_trade_pairs_fifo(trades_base):
 

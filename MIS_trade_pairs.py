@@ -39,7 +39,7 @@ def main():
 
     trades_base = trades_df[final_cols].sort_values(by=['trade_date', 'order_timestamp', 'tradingsymbol'])
     
-    # FIFO Logic to generate trade-pairs (one or more BUYs matched with one or more SELLs, per symbol, per date)
+    # FIFO Logic to generate trade-pairs for MIS orders (one or more BUYs matched with one or more SELLs, per symbol, per date)
     def build_MIS_trade_pairs_fifo(trades_base):
         
     

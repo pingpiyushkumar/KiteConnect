@@ -113,6 +113,7 @@ def main():
                         'buy_count': len(buy_trades),
                         'sell_count': len(sell_trades),
                         'product': buy_trades[0]['product'] if buy_trades else sell_trades[0]['product'],
+                        'position_type': 'LONG' if buy_time < sell_time else 'SHORT',
                         'buy_time': buy_time,
                         'sell_time': sell_time,
                         'hold_time_mins': hold_time_mins

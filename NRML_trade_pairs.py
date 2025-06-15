@@ -127,6 +127,7 @@ def main():
                     
                     # Save the completed NRML trade pair info as one result row
                     NRML_trade_pairs.append({
+                        'trade_date': sell_time.date(), # final trade date is based on when it's closed - the P&L realization day
                         'tradingsymbol': symbol[0] if isinstance(symbol, tuple) else symbol,  # In case symbol is a tuple
                         'trade_cycle_id': cycle_id,
                         'total_quantity': qty_to_match,
@@ -140,8 +141,7 @@ def main():
                         'product': 'NRML',
                         'buy_time': buy_time,
                         'sell_time': sell_time,
-                        'hold_time_mins': hold_time_mins,
-                        'trade_date': sell_time.date() # final trade date is based on when it's closed - the P&L realization day
+                        'hold_time_mins': hold_time_mins                        
                     })
 
                     # Update unmatched quantities i.e total running qty

@@ -139,6 +139,7 @@ def main():
                         'buy_count': len(matched_buys),
                         'sell_count': len(matched_sells),
                         'product': 'NRML',
+                        'position_type': 'LONG' if buy_time < sell_time else 'SHORT',
                         'buy_time': buy_time,
                         'sell_time': sell_time,
                         'hold_time_mins': hold_time_mins                        

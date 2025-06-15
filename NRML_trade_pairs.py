@@ -39,6 +39,7 @@ def main():
 
     trades_base = trades_df[final_cols].sort_values(by=['trade_date', 'order_timestamp', 'tradingsymbol'])
     print(trades_base['tradingsymbol'])
+    print(type(trades_df['tradingsymbol'].iloc[0]))
     # FIFO Logic to generate trade-pairs for NRML orders (BUYs matched with SELLs, per symbol, across multiple days)
     def build_NRML_trade_pairs_fifo(trades_base):
 

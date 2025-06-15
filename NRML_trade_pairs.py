@@ -77,7 +77,7 @@ def main():
 
         # Process each scrip globally
         for symbol, trades in grouped:
-            print(symbol, type(symbol))
+            # symbol might be treated as a tuple here in CLI, check with print(symbol, type(symbol))
           
             # Sort trades for that symbol chronologically (and by order ID for tie-breaking)
             trades = trades.sort_values(by=['order_timestamp', 'order_id'])
@@ -127,7 +127,7 @@ def main():
                     
                     # Save the completed NRML trade pair info as one result row
                     NRML_trade_pairs.append({
-                        'tradingsymbol': symbol,
+                        'tradingsymbol': symbol[0] if isinstance(symbol, tuple) else symbol,
                         'trade_cycle_id': cycle_id,
                         'total_quantity': qty_to_match,
                         'avg_buy_price': avg_buy_price,

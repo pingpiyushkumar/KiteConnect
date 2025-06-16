@@ -176,11 +176,27 @@ def main():
 
     NRML_trade_pairs[['contract_base', 'lot_size']] = NRML_trade_pairs.apply(lambda row: extract_contract_base(row['tradingsymbol'], valid_bases, contract_lots), axis=1, result_type='expand')
     NRML_trade_pairs['actual_pnl'] = NRML_trade_pairs['pnl_pips']* NRML_trade_pairs['lot_size']
-
-    # Upload MIS_trade_pairs data into bigquery table
-    job = bigquery_client.load_table_from_dataframe(NRML_trade_pairs, "kiteconnect2025.pnl_book.NRML_trade_pairs")
-    job.result()  # Wait for the upload job to complete
-    print("NRML trade pairs upload complete.")
+    
+    ## *-------* Comment out this block, if you intend to upload full NRML_trade_pairs history into bigquery *-------------*
+    # To avoid duplicate NRML trade pairs entry, let's filter for trade pairs that don't already exist in the 'kiteconnect2025.pnl_book.NRML_trade_pairs' table.
+    # Since, NRML trades can span across days, we cannot filter with dates but via a composite_trade_key: trade_date + tradingsymbol + product + trade_cycle_id
+    
+    existing_trades_df = bigquery_client.query("SELECT trade_date, tradingsymbol, product, trade_cycle_id FROM kiteconnect2025.pnl_book.NRML_trade_pairs").to_dataframe()
+    existing_trades_df['composite_trade_key'] = (existing_trades_df['trade_date'].astype(str) + existing_trades_df['tradingsymbol'] + existing_trades_df['product'] + existing_trades_df['trade_cycle_id'].astype(str))
+    existing_trade_keys = set(existing_trades_df['composite_trade_key'])
+    
+    NRML_trade_pairs['composite_trade_key'] = (NRML_trade_pairs['trade_date'].astype(str) + NRML_trade_pairs['tradingsymbol'] + NRML_trade_pairs['product'] + NRML_trade_pairs['trade_cycle_id'].astype(str))
+    NRML_trade_pairs = NRML_trade_pairs[~NRML_trade_pairs['composite_trade_key'].isin(existing_trade_keys)]
+    ## *-------------------------------------------------------------------------------------------------------------------*
+    
+    if NRML_trade_pairs.empty:
+        print("No new NRML trade pairs to process. Skipping upload.")
+    else:
+        # Upload NRML_trade_pairs data into bigquery table
+        NRML_trade_pairs.drop(columns=['composite_trade_key'], inplace=True) # Drop the extra column 'composite_trade_key' before upload
+        job = bigquery_client.load_table_from_dataframe(NRML_trade_pairs, "kiteconnect2025.pnl_book.NRML_trade_pairs")
+        job.result()  # Wait for the upload job to complete
+        print("NRML trade pairs upload complete.")
 
 
 if __name__ == "__main__":

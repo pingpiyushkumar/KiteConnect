@@ -153,6 +153,7 @@ def main():
     MIS_trade_pairs[['contract_base', 'lot_size']] = MIS_trade_pairs.apply(lambda row: extract_contract_base(row['tradingsymbol'], valid_bases, contract_lots), axis=1, result_type='expand')
     MIS_trade_pairs['actual_pnl'] = MIS_trade_pairs['pnl_pips']* MIS_trade_pairs['lot_size']
 
+    ## Comment out this block, if you intend to upload full MIS_trade_pairs history into bigquery
     # To avoid duplicate MIS trade pairs entry, let's filter for trade dates that don't already exist in the 'kiteconnect2025.pnl_book.MIS_trade_pairs' table.
     existing_trade_dates_df = bigquery_client.query("SELECT DISTINCT trade_date FROM kiteconnect2025.pnl_book.MIS_trade_pairs").to_dataframe()
     existing_trades_dates = set(existing_trade_dates_df['trade_date'])

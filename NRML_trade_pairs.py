@@ -120,9 +120,19 @@ def main():
                     avg_buy_price = total_buy_value / qty_to_match
                     avg_sell_price = total_sell_value / qty_to_match
                     pnl_pips = total_sell_value - total_buy_value
-    
-                    buy_time = min(pd.to_datetime(t['order_timestamp']) for t in matched_buys)
-                    sell_time = max(pd.to_datetime(t['order_timestamp']) for t in matched_sells)
+
+                    # Capture all buy times and sell times
+                    buy_times = min(pd.to_datetime(t['order_timestamp']) for t in matched_buys)
+                    sell_times = max(pd.to_datetime(t['order_timestamp']) for t in matched_sells)
+                    
+                    # Identify first and last timestamp across both legs
+                    first_leg_time = min(buy_times + sell_times)
+                    last_leg_time = max(buy_times + sell_times)
+                    
+                    # Determine which side initiated the trade. Trades are punched manually, so the same timestamp occurring in both legs isn't possible.
+                    buy_time = first_leg_time if first_leg_time in buy_times else last_leg_time
+                    sell_time = first_leg_time if first_leg_time in sell_times else last_leg_time
+                    
                     hold_time_mins = round(abs((sell_time - buy_time).total_seconds()) / 60)
                     
                     # Save the completed NRML trade pair info as one result row

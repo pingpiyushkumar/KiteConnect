@@ -49,7 +49,7 @@ def main():
     trade_pairs['scrip_product_day_trade_num'] = trade_pairs.groupby(['entry_date', 'tradingsymbol', 'product'])['sort_key'].rank(method='dense').astype('Int64')
     trade_pairs['scrip_product_long_day_trade_num'] = trade_pairs[trade_pairs['position_type'] == 'LONG'].groupby(['entry_date', 'tradingsymbol', 'product', 'position_type'])['sort_key'].rank(method='dense').astype('Int64') 
     trade_pairs['scrip_product_short_day_trade_num'] = trade_pairs[trade_pairs['position_type'] == 'SHORT'].groupby(['entry_date', 'tradingsymbol', 'product', 'position_type'])['sort_key'].rank(method='dense').astype('Int64') 
-    trade_pairs.drop(columns=['entry_date'], inplace=True)     # Drop the extra column 'entry_date' before upload
+    trade_pairs.drop(columns=['entry_date', 'sort_key'], inplace=True)     # Drop the extra column 'entry_date' before upload
 
     # Write trade pairs to Google Sheet
     sheet.clear()

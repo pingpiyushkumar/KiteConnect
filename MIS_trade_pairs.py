@@ -94,8 +94,8 @@ def main():
                     pnl_pips = total_sell_value - total_buy_value
                     
                     # Capture all buy times and sell times
-                    buy_times = min(pd.to_datetime(t['order_timestamp']) for t in matched_buys)
-                    sell_times = max(pd.to_datetime(t['order_timestamp']) for t in matched_sells)
+                    buy_times = min(pd.to_datetime(t['order_timestamp']) for t in buy_trades)
+                    sell_times = max(pd.to_datetime(t['order_timestamp']) for t in sell_trades)
                     
                     # Identify first and last timestamp across both legs
                     first_leg_time = min(buy_times + sell_times)

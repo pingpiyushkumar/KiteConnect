@@ -79,7 +79,7 @@ def main():
         for symbol, trades in grouped:
             # symbol might be treated as a tuple in CLI, check with print(symbol, type(symbol))
           
-            # Sort trades for that symbol chronologically (and by order ID for tie-breaking)
+            # Sort trades for that symbol chronologically (and by order ID for tie-breaking) # An order may have one or more trades.
             trades = trades.sort_values(by=['order_timestamp', 'order_id'])
           
             # Queues to collect the current BUY and SELL trades for the ongoing pair
@@ -88,7 +88,7 @@ def main():
             # Track total quantity of current buy and sell legs
             buy_qty  = 0
             sell_qty = 0
-            # A counter for each full BUY+SELL cycle (trade-pair) for this scrip
+            # A counter for each full BUY+SELL cycle (trade-pair) for this scrip: this is not per date but per symbol.
             cycle_id = 1
           
             # Go through each trade of the day in order
@@ -139,7 +139,7 @@ def main():
                     NRML_trade_pairs.append({
                         'trade_date': last_leg_time.date(), # final trade date is based on when it's closed - the P&L realization day
                         'tradingsymbol': symbol[0] if isinstance(symbol, tuple) else symbol,  # In case symbol is a tuple
-                        'trade_cycle_id': cycle_id,
+                        'trade_cycle_id': cycle_id,  # this is per symbol, not per date, let's update when the NRML_trade_pairs dataframe is complete.
                         'total_quantity': qty_to_match,
                         'avg_buy_price': avg_buy_price,
                         'avg_sell_price': avg_sell_price,
@@ -152,6 +152,8 @@ def main():
                         'position_type': 'LONG' if buy_time < sell_time else 'SHORT',
                         'buy_time': buy_time,
                         'sell_time': sell_time,
+                        'tradepair_entry_timestamp': first_leg_time, 
+                        'tradepair_exit_timestamp': last_leg_time,
                         'hold_time_mins': hold_time_mins                        
                     })
 
@@ -165,6 +167,12 @@ def main():
 
     # Compute NRML trade-pairs
     NRML_trade_pairs = build_NRML_trade_pairs_fifo(trades_base)
+
+    # Repairing the logic of trade cycle Ids for NRML pairs. (making it per symbol, per date)
+    # Create a temp column for entry timestamp date
+    NRML_trade_pairs['entry_date'] = NRML_trade_pairs['tradepair_entry_timestamp'].dt.date
+    NRML_trade_pairs['trade_cycle_id'] = (NRML_trade_pairs.groupby(['entry_date', 'tradingsymbol'])['tradepair_entry_timestamp'].rank(method='dense').astype(int))
+    NRML_trade_pairs.drop(columns=['entry_date'], inplace=True)    
     
     # Load commodity contract sizes from BigQuery table (for P&L scaling by lot size)
     mcx_contract_df = bigquery_client.query("select * from kiteconnect2025.tradebook.mcx_commodity_contracts").to_dataframe()

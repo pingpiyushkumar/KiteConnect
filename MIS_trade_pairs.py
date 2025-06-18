@@ -169,7 +169,7 @@ def main():
     existing_trade_dates_df = bigquery_client.query("SELECT DISTINCT trade_date FROM kiteconnect2025.pnl_book.MIS_trade_pairs").to_dataframe()
     existing_trade_dates = set(existing_trade_dates_df['trade_date'])
     MIS_trade_pairs = MIS_trade_pairs[(~MIS_trade_pairs['trade_date'].isin(existing_trade_dates))]
-    ## *-------------------------------------------------------------------------------------------------------------------*
+    ## *--------------------------------------------------------------------------------------------------------------------*
 
     if MIS_trade_pairs.empty:
         print("No new MIS trade pairs to process. Skipping upload.")

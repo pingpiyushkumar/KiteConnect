@@ -52,7 +52,7 @@ def main():
         # Process each trade_date-scrip pair
         for (trade_date, symbol), trades in grouped:
             
-            # Sort trades in time order and then by order_id
+            # Sort trades in time order and then by order_id  # An order may have one or more trades.
             trades = trades.sort_values(by=['order_timestamp', 'order_id'])
         
             # Queues to collect the current BUY and SELL trades for the ongoing pair
@@ -111,7 +111,7 @@ def main():
                     MIS_trade_pairs.append({
                         'trade_date': trade_date,
                         'tradingsymbol': symbol,
-                        'trade_cycle_id': cycle_id,  # Which cycle/pair this is
+                        'trade_cycle_id': cycle_id,  # Which cycle/pair this is, per symbol, per date
                         'total_quantity': buy_qty,  # Quantity matched in this pair
                         'avg_buy_price': avg_buy_price,
                         'avg_sell_price': avg_sell_price,
@@ -124,6 +124,8 @@ def main():
                         'position_type': 'LONG' if buy_time < sell_time else 'SHORT',
                         'buy_time': buy_time,
                         'sell_time': sell_time,
+                        'tradepair_entry_timestamp': first_leg_time, 
+                        'tradepair_exit_timestamp': last_leg_time,
                         'hold_time_mins': hold_time_mins
                     })
 

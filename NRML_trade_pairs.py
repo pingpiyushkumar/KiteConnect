@@ -137,7 +137,7 @@ def main():
                     
                     # Save the completed NRML trade pair info as one result row
                     NRML_trade_pairs.append({
-                        'trade_date': sell_time.date(), # final trade date is based on when it's closed - the P&L realization day
+                        'trade_date': last_leg_time.date(), # final trade date is based on when it's closed - the P&L realization day
                         'tradingsymbol': symbol[0] if isinstance(symbol, tuple) else symbol,  # In case symbol is a tuple
                         'trade_cycle_id': cycle_id,
                         'total_quantity': qty_to_match,

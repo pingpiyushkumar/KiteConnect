@@ -122,8 +122,8 @@ def main():
                     pnl_pips = total_sell_value - total_buy_value
 
                     # Capture all buy times and sell times
-                    buy_times = min(pd.to_datetime(t['order_timestamp']) for t in matched_buys)
-                    sell_times = max(pd.to_datetime(t['order_timestamp']) for t in matched_sells)
+                    buy_times = [pd.to_datetime(t['order_timestamp']) for t in matched_buys]
+                    sell_times = [pd.to_datetime(t['order_timestamp']) for t in matched_sells]
                     
                     # Identify first and last timestamp across both legs
                     first_leg_time = min(buy_times + sell_times)
@@ -199,19 +199,19 @@ def main():
     # To avoid duplicate NRML trade pairs entry, let's filter for trade pairs that don't already exist in the 'kiteconnect2025.pnl_book.NRML_trade_pairs' table.
     # Since, NRML trades can span across days, we cannot filter with dates but via a composite_trade_key: trade_date + tradingsymbol + product + trade_cycle_id
     
-    existing_trades_df = bigquery_client.query("SELECT trade_date, tradingsymbol, product, trade_cycle_id FROM kiteconnect2025.pnl_book.NRML_trade_pairs").to_dataframe()
-    existing_trades_df['composite_trade_key'] = (existing_trades_df['trade_date'].astype(str) + existing_trades_df['tradingsymbol'] + existing_trades_df['product'] + existing_trades_df['trade_cycle_id'].astype(str))
-    existing_trade_keys = set(existing_trades_df['composite_trade_key'])
+    #existing_trades_df = bigquery_client.query("SELECT trade_date, tradingsymbol, product, trade_cycle_id FROM kiteconnect2025.pnl_book.NRML_trade_pairs").to_dataframe()
+    #existing_trades_df['composite_trade_key'] = (existing_trades_df['trade_date'].astype(str) + existing_trades_df['tradingsymbol'] + existing_trades_df['product'] + existing_trades_df['trade_cycle_id'].astype(str))
+    #existing_trade_keys = set(existing_trades_df['composite_trade_key'])
     
-    NRML_trade_pairs['composite_trade_key'] = (NRML_trade_pairs['trade_date'].astype(str) + NRML_trade_pairs['tradingsymbol'] + NRML_trade_pairs['product'] + NRML_trade_pairs['trade_cycle_id'].astype(str))
-    NRML_trade_pairs = NRML_trade_pairs[~NRML_trade_pairs['composite_trade_key'].isin(existing_trade_keys)]
+    #NRML_trade_pairs['composite_trade_key'] = (NRML_trade_pairs['trade_date'].astype(str) + NRML_trade_pairs['tradingsymbol'] + NRML_trade_pairs['product'] + NRML_trade_pairs['trade_cycle_id'].astype(str))
+    #NRML_trade_pairs = NRML_trade_pairs[~NRML_trade_pairs['composite_trade_key'].isin(existing_trade_keys)]
     ## *-------------------------------------------------------------------------------------------------------------------*
     
     if NRML_trade_pairs.empty:
         print("No new NRML trade pairs to process. Skipping upload.")
     else:
         # Upload NRML_trade_pairs data into bigquery table
-        NRML_trade_pairs.drop(columns=['composite_trade_key'], inplace=True) # Drop the extra column 'composite_trade_key' before upload
+        #NRML_trade_pairs.drop(columns=['composite_trade_key'], inplace=True) # Drop the extra column 'composite_trade_key' before upload
         job = bigquery_client.load_table_from_dataframe(NRML_trade_pairs, "kiteconnect2025.pnl_book.NRML_trade_pairs")
         job.result()  # Wait for the upload job to complete
         print("NRML trade pairs upload complete.")

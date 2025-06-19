@@ -51,6 +51,13 @@ def main():
     trade_pairs['scrip_product_short_day_trade_num'] = trade_pairs[trade_pairs['position_type'] == 'SHORT'].groupby(['entry_date', 'tradingsymbol', 'product', 'position_type'])['sort_key'].rank(method='dense').astype('Int64') 
     trade_pairs.drop(columns=['entry_date', 'sort_key'], inplace=True)     # Drop the extra column 'entry_date' before upload
 
+    # calculate the hold time in minutes. (excluding weekends)
+    def hold_time_excluding_weekends(row): 
+        minutes = pd.date_range(start=row['Buy Time'], end=row['Sell Time'], freq='T')    # Create a minute-level range from Buy to Sell time
+        weekday_minutes = minutes[~minutes.weekday.isin([5, 6])]                          # Filter out weekend days (Saturday=5, Sunday=6)
+        return len(weekday_minutes)                                                       # Return count of weekday minutes
+    trade_pairs['weekday_hold_time_mins'] = trade_pairs.apply(hold_time_excluding_weekends, axis=1)
+
     # Write trade pairs to Google Sheet
     sheet.clear()
     set_with_dataframe(sheet, trade_pairs, include_column_header=True)

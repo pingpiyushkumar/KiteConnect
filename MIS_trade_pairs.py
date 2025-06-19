@@ -158,7 +158,7 @@ def main():
         for base in sorted(valid_bases, key=len, reverse=True):
             if tradingsymbol.startswith(base):
                 return base, contract_lots.get(base, 1)
-        return None  # or fallback to tradingsymbol if needed
+        return tradingsymbol, 1  # or fallback to tradingsymbol if needed
 
     MIS_trade_pairs[['contract_base', 'lot_size']] = MIS_trade_pairs.apply(lambda row: extract_contract_base(row['tradingsymbol'], valid_bases, contract_lots), axis=1, result_type='expand')
     MIS_trade_pairs['actual_pnl'] = MIS_trade_pairs['pnl_pips']* MIS_trade_pairs['lot_size']

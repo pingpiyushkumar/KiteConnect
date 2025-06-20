@@ -53,7 +53,7 @@ def main():
 
     # calculate the hold time in minutes. (excluding weekends)
     def hold_time_excluding_weekends(row): 
-        minutes = pd.date_range(start=row['buy_time'], end=row['sell_time'], freq='min')    # Create a minute-level range from Buy to Sell time
+        minutes = pd.date_range(start=row['tradepair_entry_timestamp'], end=row['tradepair_exit_timestamp'], freq='min')    # Create a minute-level range from Buy to Sell time
         weekday_minutes = minutes[~minutes.weekday.isin([5, 6])]                          # Filter out weekend days (Saturday=5, Sunday=6)
         return len(weekday_minutes)                                                       # Return count of weekday minutes
     trade_pairs['weekday_hold_time_mins'] = trade_pairs.apply(hold_time_excluding_weekends, axis=1)

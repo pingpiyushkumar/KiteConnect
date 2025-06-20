@@ -62,13 +62,18 @@ def main():
                 
             else:
                 
-                # Append trades to Google Sheet as backup
-                backup_sheet = [ws for ws in spreadsheet.worksheets() if ws.id == 0][0]   
-                next_row_index = len(backup_sheet.get_all_values()) + 1                     # Find the next empty row in the sheet
-                include_header_flag = True if next_row_index == 1 else False                # Check if next_row_index =1, i.e sheet is empty, set the header flag as True
-                set_with_dataframe(backup_sheet, trades, row=next_row_index, include_column_header=include_header_flag)
-                print("Trades appended to backup sheet.")
-                
+                # Append trades to Google Sheet as backup, upload only the trades that don't already exist in back up sheet.
+                backup_sheet = [ws for ws in spreadsheet.worksheets() if ws.id == 0][0]
+                existing_trade_ids = set(backup_sheet.col_values(1)[1:])                         # first column and skip the header row
+                new_trades = trades[~trades['trade_id'].astype(str).isin(existing_trade_ids)]
+                if new_trades.empty:
+                    print("No new trades to append in the backup sheet.")
+                else:                    
+                    next_row_index = len(backup_sheet.get_all_values()) + 1                     # Find the next empty row in the sheet
+                    include_header_flag = True if next_row_index == 1 else False                # Check if next_row_index =1, i.e sheet is empty, set the header flag as True
+                    set_with_dataframe(backup_sheet, new_trades, row=next_row_index, include_column_header=include_header_flag)
+                    print("Trades appended to backup sheet.")
+                    
                 # Initialize BigQuery client
                 print("Initializing BigQuery client...")
                 ## bigquery_client = bigquery.Client()

@@ -17,7 +17,9 @@ def main():
     # Load trades data from bigquery table into a dataframe and drop duplicate rows
     trades_df = bigquery_client.query("select * from kiteconnect2025.tradebook.trades").to_dataframe()
     trades_df.drop_duplicates(inplace= True)
-    
+    # Use the updated 'converted_product' product column to allow for product conversion check and drop the existing one.
+    trades_df = trades_df.drop(columns=["product"]).rename(columns={"converted_product": "product"})
+ 
     # Extract trade date from timestamp
     trades_df['trade_date'] = pd.to_datetime(trades_df['order_timestamp']).dt.date
 

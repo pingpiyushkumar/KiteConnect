@@ -218,7 +218,7 @@ def main():
         print("No new NRML trade pairs to process. Skipping upload.")
     else:
         # Upload NRML_trade_pairs data into bigquery table
-        NRML_trade_pairs.drop(columns=['composite_trade_key'], inplace=True) # Drop the extra column 'composite_trade_key' before upload
+        NRML_trade_pairs.drop(columns=['composite_trade_key'], inplace=True, errors='ignore') # Drop the extra column 'composite_trade_key' before upload
         job = bigquery_client.load_table_from_dataframe(NRML_trade_pairs, "kiteconnect2025.pnl_book.NRML_trade_pairs")
         job.result()  # Wait for the upload job to complete
         print("NRML trade pairs upload complete.")

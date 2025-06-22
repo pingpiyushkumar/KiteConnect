@@ -40,10 +40,12 @@ def main():
             trades = pd.DataFrame(kite.trades())
             orders = pd.DataFrame(kite.orders())
 
-            #Fetch Positions data from Kite API
-            positions=kite.positions()
-            positions_day = pd.DataFrame(positions['day'])
-            positions_net = pd.DataFrame(positions['net'])
+            ##---------- Positions data is redundant----------------------------------------------------##
+            # Fetch Positions data from Kite API
+            # positions=kite.positions()
+            # positions_day = pd.DataFrame(positions['day'])
+            # positions_net = pd.DataFrame(positions['net'])
+            ##---------- Positions data is redundant----------------------------------------------------##
             
             #dropping the 'meta' column for the pyarrow lib to able to upload the dataframe into bigquery, 'meta' col can be empty which is problematic for pyarrow.
             if 'meta' in orders.columns:
@@ -60,20 +62,27 @@ def main():
                 
             else:
                 
-                # Append trades to Google Sheet as backup
-                backup_sheet = [ws for ws in spreadsheet.worksheets() if ws.id == 0][0]   
-                next_row_index = len(backup_sheet.get_all_values()) + 1                     # Find the next empty row in the sheet
-                include_header_flag = True if next_row_index == 1 else False                # Check if next_row_index =1, i.e sheet is empty, set the header flag as True
-                set_with_dataframe(backup_sheet, trades, row=next_row_index, include_column_header=include_header_flag)
-                print("Trades appended to backup sheet.")
-                
+                # Append trades to Google Sheet as backup, upload only the trades that don't already exist in back up sheet.
+                backup_sheet = [ws for ws in spreadsheet.worksheets() if ws.id == 0][0]
+                existing_trade_ids = set(backup_sheet.col_values(1)[1:])                         # first column and skip the header row
+                new_trades = trades[~trades['trade_id'].astype(str).isin(existing_trade_ids)]
+                if new_trades.empty:
+                    print("No new trades to append in the backup sheet.")
+                else:                    
+                    next_row_index = len(backup_sheet.get_all_values()) + 1                     # Find the next empty row in the sheet
+                    include_header_flag = True if next_row_index == 1 else False                # Check if next_row_index =1, i.e sheet is empty, set the header flag as True
+                    set_with_dataframe(backup_sheet, new_trades, row=next_row_index, include_column_header=include_header_flag)
+                    print("Trades appended to backup sheet.")
+                    
                 # Initialize BigQuery client
                 print("Initializing BigQuery client...")
                 ## bigquery_client = bigquery.Client()
                 trades_table_id = "kiteconnect2025.tradebook.trades"
                 orders_table_id = "kiteconnect2025.tradebook.orders"
-                positions_day_table_id = "kiteconnect2025.tradebook.positions_day"
-                positions_net_table_id = "kiteconnect2025.tradebook.positions_net"
+                ##---------- Positions data is redundant----------------------------------------------------##
+                ## positions_day_table_id = "kiteconnect2025.tradebook.positions_day"
+                ## positions_net_table_id = "kiteconnect2025.tradebook.positions_net"
+                ##---------- Positions data is redundant----------------------------------------------------##
 
                 # Upload trades, orders and positions data to BigQuery
                 job = bigquery_client.load_table_from_dataframe(trades, trades_table_id)
@@ -84,14 +93,16 @@ def main():
                 job.result()  # Wait for the upload job to complete
                 print("Orders upload complete.")
                 
-                job = bigquery_client.load_table_from_dataframe(positions_day, positions_day_table_id)
-                job.result()  # Wait for the upload job to complete
-                print("Positions-Day upload complete.")
+                ##---------- Positions data is redundant----------------------------------------------------##
+                # job = bigquery_client.load_table_from_dataframe(positions_day, positions_day_table_id)
+                # job.result()  # Wait for the upload job to complete
+                # print("Positions-Day upload complete.")
 
-                job = bigquery_client.load_table_from_dataframe(positions_net, positions_net_table_id)
-                job.result()  # Wait for the upload job to complete
-                print("Positions-Net upload complete.")
-
+                # job = bigquery_client.load_table_from_dataframe(positions_net, positions_net_table_id)
+                # job.result()  # Wait for the upload job to complete
+                # print("Positions-Net upload complete.")
+                ##---------- Positions data is redundant----------------------------------------------------##
+                
                 print("All uploads complete. Flushing access token...")
                 sheet.update_acell("B11", "")
                 sheet.update_acell("C11", "")

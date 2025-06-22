@@ -17,7 +17,9 @@ def main():
     # Load trades data from bigquery table into a dataframe and drop duplicate rows
     trades_df = bigquery_client.query("select * from kiteconnect2025.tradebook.trades").to_dataframe()
     trades_df.drop_duplicates(inplace= True)
-    
+    # Use the updated 'converted_product' product column to allow for product conversion check and drop the existing one.
+    trades_df = trades_df.drop(columns=["product"]).rename(columns={"converted_product": "product"})
+ 
     # Extract trade date from timestamp
     trades_df['trade_date'] = pd.to_datetime(trades_df['order_timestamp']).dt.date
 
@@ -52,7 +54,7 @@ def main():
         # Process each trade_date-scrip pair
         for (trade_date, symbol), trades in grouped:
             
-            # Sort trades in time order and then by order_id
+            # Sort trades in time order and then by order_id  # An order may have one or more trades.
             trades = trades.sort_values(by=['order_timestamp', 'order_id'])
         
             # Queues to collect the current BUY and SELL trades for the ongoing pair
@@ -92,18 +94,26 @@ def main():
                     avg_sell_price = total_sell_value / sell_qty
                     # Profit or Loss = Sell Value - Buy Cost
                     pnl_pips = total_sell_value - total_buy_value
-                    # Holding time calculation
+                    
+                    # Capture all buy times and sell times
                     buy_times = [pd.to_datetime(t['order_timestamp']) for t in buy_trades]
                     sell_times = [pd.to_datetime(t['order_timestamp']) for t in sell_trades]
-                    buy_time = min(buy_times)
-                    sell_time = max(sell_times)
+                    
+                    # Identify first and last timestamp across both legs
+                    first_leg_time = min(buy_times + sell_times)
+                    last_leg_time = max(buy_times + sell_times)
+                    
+                    # Determine which side initiated the trade. Trades are punched manually, so the same timestamp occurring in both legs isn't possible.
+                    buy_time = first_leg_time if first_leg_time in buy_times else last_leg_time
+                    sell_time = first_leg_time if first_leg_time in sell_times else last_leg_time
+                    
                     hold_time_mins = round(abs((sell_time - buy_time).total_seconds()) / 60)   
 
                     # Save the trade pair info as one result row
                     MIS_trade_pairs.append({
                         'trade_date': trade_date,
                         'tradingsymbol': symbol,
-                        'trade_cycle_id': cycle_id,  # Which cycle/pair this is
+                        'trade_cycle_id': cycle_id,  # Which cycle/pair this is, per symbol, per date
                         'total_quantity': buy_qty,  # Quantity matched in this pair
                         'avg_buy_price': avg_buy_price,
                         'avg_sell_price': avg_sell_price,
@@ -116,6 +126,8 @@ def main():
                         'position_type': 'LONG' if buy_time < sell_time else 'SHORT',
                         'buy_time': buy_time,
                         'sell_time': sell_time,
+                        'tradepair_entry_timestamp': first_leg_time, 
+                        'tradepair_exit_timestamp': last_leg_time,
                         'hold_time_mins': hold_time_mins
                     })
 
@@ -148,18 +160,22 @@ def main():
         for base in sorted(valid_bases, key=len, reverse=True):
             if tradingsymbol.startswith(base):
                 return base, contract_lots.get(base, 1)
-        return None  # or fallback to tradingsymbol if needed
+        return tradingsymbol, 1  # or fallback to tradingsymbol if needed
 
     MIS_trade_pairs[['contract_base', 'lot_size']] = MIS_trade_pairs.apply(lambda row: extract_contract_base(row['tradingsymbol'], valid_bases, contract_lots), axis=1, result_type='expand')
     MIS_trade_pairs['actual_pnl'] = MIS_trade_pairs['pnl_pips']* MIS_trade_pairs['lot_size']
 
     ## *-------* Comment out this block, if you intend to upload full MIS_trade_pairs history into bigquery *-------------*
-    ## Comment out this block, if you intend to upload full MIS_trade_pairs history into bigquery
     # To avoid duplicate MIS trade pairs entry, let's filter for trade dates that don't already exist in the 'kiteconnect2025.pnl_book.MIS_trade_pairs' table.
-    existing_trade_dates_df = bigquery_client.query("SELECT DISTINCT trade_date FROM kiteconnect2025.pnl_book.MIS_trade_pairs").to_dataframe()
-    existing_trade_dates = set(existing_trade_dates_df['trade_date'])
-    MIS_trade_pairs = MIS_trade_pairs[(~MIS_trade_pairs['trade_date'].isin(existing_trade_dates))]
-    ## *-------------------------------------------------------------------------------------------------------------------*
+    # Before querying check if the table is without schema
+    table = bigquery_client.get_table("kiteconnect2025.pnl_book.MIS_trade_pairs")
+    if not table.schema:
+        print("Table exists but has no schema. Skipping querying for existing trades.")
+    else:
+        existing_trade_dates_df = bigquery_client.query("SELECT DISTINCT trade_date FROM kiteconnect2025.pnl_book.MIS_trade_pairs").to_dataframe()
+        existing_trade_dates = set(existing_trade_dates_df['trade_date'])
+        MIS_trade_pairs = MIS_trade_pairs[(~MIS_trade_pairs['trade_date'].isin(existing_trade_dates))]
+    ## *--------------------------------------------------------------------------------------------------------------------*
 
     if MIS_trade_pairs.empty:
         print("No new MIS trade pairs to process. Skipping upload.")

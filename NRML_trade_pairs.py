@@ -201,12 +201,17 @@ def main():
     # To avoid duplicate NRML trade pairs entry, let's filter for trade pairs that don't already exist in the 'kiteconnect2025.pnl_book.NRML_trade_pairs' table.
     # Since, NRML trades can span across days, we cannot filter with dates but via a composite_trade_key: trade_date + tradingsymbol + product + trade_cycle_id
     
-    existing_trades_df = bigquery_client.query("SELECT trade_date, tradingsymbol, product, trade_cycle_id FROM kiteconnect2025.pnl_book.NRML_trade_pairs").to_dataframe()
-    existing_trades_df['composite_trade_key'] = (existing_trades_df['trade_date'].astype(str) + existing_trades_df['tradingsymbol'] + existing_trades_df['product'] + existing_trades_df['trade_cycle_id'].astype(str))
-    existing_trade_keys = set(existing_trades_df['composite_trade_key'])
+    # Before querying the NRML table, let's check if the table is without schema
+    table = bigquery_client.get_table("kiteconnect2025.pnl_book.NRML_trade_pairs")
+    if not table.schema:
+        print("Table exists but has no schema. Skipping querying for existing trades.")
+    else:
+        existing_trades_df = bigquery_client.query("SELECT trade_date, tradingsymbol, product, trade_cycle_id FROM kiteconnect2025.pnl_book.NRML_trade_pairs").to_dataframe()
+        existing_trades_df['composite_trade_key'] = (existing_trades_df['trade_date'].astype(str) + existing_trades_df['tradingsymbol'] + existing_trades_df['product'] + existing_trades_df['trade_cycle_id'].astype(str))
+        existing_trade_keys = set(existing_trades_df['composite_trade_key'])
     
-    NRML_trade_pairs['composite_trade_key'] = (NRML_trade_pairs['trade_date'].astype(str) + NRML_trade_pairs['tradingsymbol'] + NRML_trade_pairs['product'] + NRML_trade_pairs['trade_cycle_id'].astype(str))
-    NRML_trade_pairs = NRML_trade_pairs[~NRML_trade_pairs['composite_trade_key'].isin(existing_trade_keys)]
+        NRML_trade_pairs['composite_trade_key'] = (NRML_trade_pairs['trade_date'].astype(str) + NRML_trade_pairs['tradingsymbol'] + NRML_trade_pairs['product'] + NRML_trade_pairs['trade_cycle_id'].astype(str))
+        NRML_trade_pairs = NRML_trade_pairs[~NRML_trade_pairs['composite_trade_key'].isin(existing_trade_keys)]
     ## *-------------------------------------------------------------------------------------------------------------------*
     
     if NRML_trade_pairs.empty:

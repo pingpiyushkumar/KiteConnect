@@ -6,6 +6,8 @@ from google.oauth2.service_account import Credentials
 import gspread
 from gspread_dataframe import set_with_dataframe
 
+# The code below pushes all the backed-up trades in the backup gsheet to bigquery table "kiteconnect2025.tradebook.trades"
+# This also pushes the product conversion info (MIS -> to NRML or vice versa) if it happened on a trade.
 
 def main():
     

@@ -5,6 +5,7 @@ import os
 from kiteconnect import KiteConnect
 from google.oauth2.service_account import Credentials
 import gspread
+import time
 from gspread_dataframe import set_with_dataframe
 
 
@@ -73,6 +74,8 @@ def main():
                     include_header_flag = True if next_row_index == 1 else False                # Check if next_row_index =1, i.e sheet is empty, set the header flag as True
                     set_with_dataframe(backup_sheet, new_trades, row=next_row_index, include_column_header=include_header_flag)
                     print("Trades appended to backup sheet.")
+                    time.sleep(5)                                                                # Waiting for 5 secs. for the formula to update the converted_product column, for the rows with newly appended data.
+                    trades['converted_product'] = backup_sheet.col_values(14)[next_row_index-1:] # Reading Converted Product Column from sheet and adding into trades df to upload into bigquery
                     
                 # Initialize BigQuery client
                 print("Initializing BigQuery client...")

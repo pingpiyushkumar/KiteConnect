@@ -91,10 +91,11 @@ def main():
                 job = bigquery_client.load_table_from_dataframe(trades, trades_table_id)
                 job.result()  # Wait for the upload job to complete
                 print("Trades upload complete.")
-        
-                job = bigquery_client.load_table_from_dataframe(orders, orders_table_id)
-                job.result()  # Wait for the upload job to complete
-                print("Orders upload complete.")
+                
+                ##--- Skip orders data upload---##
+                #job = bigquery_client.load_table_from_dataframe(orders, orders_table_id)
+                #job.result()  # Wait for the upload job to complete
+                #print("Orders upload complete.")
                 
                 ##---------- Positions data is redundant----------------------------------------------------##
                 # job = bigquery_client.load_table_from_dataframe(positions_day, positions_day_table_id)

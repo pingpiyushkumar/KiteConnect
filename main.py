@@ -40,6 +40,7 @@ def main():
             # Fetch trades and orders from Kite API
             trades = pd.DataFrame(kite.trades())
             orders = pd.DataFrame(kite.orders())
+            trades = trades.drop(columns=['account_id'])
 
             ##---------- Positions data is redundant----------------------------------------------------##
             # Fetch Positions data from Kite API

@@ -40,7 +40,6 @@ def main():
             # Fetch trades and orders from Kite API
             trades = pd.DataFrame(kite.trades())
             orders = pd.DataFrame(kite.orders())
-            trades = trades.drop(columns=['account_id'])
 
             ##---------- Positions data is redundant----------------------------------------------------##
             # Fetch Positions data from Kite API
@@ -63,8 +62,32 @@ def main():
                 print("Access token and timestamp cleared from sheet.")
                 
             else:
+                # Prepare 'trades' dataframe.
+                trades = trades.drop(columns=['account_id']) #dropping the redundant 'account_id' column.
                 
-                # Append trades to Google Sheet as backup, upload only the trades that don't already exist in back up sheet.
+                # An order may be partially filled through multiple trades, all bearing the same order_id.
+                # To consolidate, let's group by order_id (along with exchange, tradingsymbol, and product) and compute the weighted average price based on the quantity filled in each trade of an order.
+                
+                def weighted_avg_price(order_group):
+                    return (order_group['average_price'] *order_group['quantity']).sum() / order_group['quantity'].sum()
+                
+                col_order = trades.columns.tolist()
+                trades = trades.groupby(['order_id', 'exchange', 'tradingsymbol', 'product'], as_index=False).apply(
+                    lambda order_group: pd.Series({
+                        'quantity': order_group['quantity'].sum(),
+                        'average_price': weighted_avg_price(order_group),
+                        'fill_timestamp': order_group['fill_timestamp'].min(),
+                        'order_timestamp': order_group['order_timestamp'].min(),
+                        'exchange_timestamp': order_group['exchange_timestamp'].min(),
+                        'exchange_order_id': order_group['exchange_order_id'].iloc[0],
+                        'instrument_token': order_group['instrument_token'].iloc[0],
+                        'transaction_type': order_group['transaction_type'].iloc[0],
+                        'trade_id': order_group['trade_id'].iloc[0],     
+                    })).reset_index(drop=True)
+
+                trades = trades[col_order] # restore original column order
+                
+                # Also, append the trades to the Google Sheet as backup, upload only the trades that don't already exist in backup sheet.
                 backup_sheet = [ws for ws in spreadsheet.worksheets() if ws.id == 0][0]
                 existing_trade_ids = set(backup_sheet.col_values(1)[1:])                         # first column and skip the header row
                 new_trades = trades[~trades['trade_id'].astype(str).isin(existing_trade_ids)]

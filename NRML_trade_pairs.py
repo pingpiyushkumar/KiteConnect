@@ -199,9 +199,9 @@ def main():
 
     # Reorder columns: actual_pnl, position_type, product after avg_sell_price
     cols_to_move = ["actual_pnl", "position_type", "product"]
-    cols = [c for c in MIS_trade_pairs.columns if c not in cols_to_move]
+    cols = [c for c in NRML_trade_pairs.columns if c not in cols_to_move]
     insert_at = cols.index("avg_sell_price") + 1 
-    MIS_trade_pairs = MIS_trade_pairs[cols[:insert_at] + cols_to_move + cols[insert_at:]]
+    NRML_trade_pairs = NRML_trade_pairs[cols[:insert_at] + cols_to_move + cols[insert_at:]]
     
     ## *-------* Comment out this block, if you intend to upload full NRML_trade_pairs history into bigquery *-------------*
     # To avoid duplicate NRML trade pairs entry, let's filter for trade pairs that don't already exist in the 'kiteconnect2025.pnl_book.NRML_trade_pairs' table.

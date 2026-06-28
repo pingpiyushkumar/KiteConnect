@@ -165,8 +165,6 @@ def main():
     MIS_trade_pairs[['contract_base', 'lot_size']] = MIS_trade_pairs.apply(lambda row: extract_contract_base(row['tradingsymbol'], valid_bases, contract_lots), axis=1, result_type='expand')
     MIS_trade_pairs['actual_pnl'] = MIS_trade_pairs['pnl_pips']* MIS_trade_pairs['lot_size']
 
-    MIS_trade_pairs['actual_pnl'] = MIS_trade_pairs['pnl_pips'] * MIS_trade_pairs['lot_size']
-
     # Reorder columns: actual_pnl, position_type, product after avg_sell_price
     cols_to_move = ["actual_pnl", "position_type", "product"]
     cols = [c for c in MIS_trade_pairs.columns if c not in cols_to_move]

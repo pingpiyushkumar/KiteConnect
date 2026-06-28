@@ -165,6 +165,14 @@ def main():
     MIS_trade_pairs[['contract_base', 'lot_size']] = MIS_trade_pairs.apply(lambda row: extract_contract_base(row['tradingsymbol'], valid_bases, contract_lots), axis=1, result_type='expand')
     MIS_trade_pairs['actual_pnl'] = MIS_trade_pairs['pnl_pips']* MIS_trade_pairs['lot_size']
 
+    MIS_trade_pairs['actual_pnl'] = MIS_trade_pairs['pnl_pips'] * MIS_trade_pairs['lot_size']
+
+    # Reorder columns: actual_pnl, position_type, product after avg_sell_price
+    cols_to_move = ["actual_pnl", "position_type", "product"]
+    cols = [c for c in MIS_trade_pairs.columns if c not in cols_to_move]
+    insert_at = cols.index("avg_sell_price") + 1 
+    MIS_trade_pairs = MIS_trade_pairs[cols[:insert_at] + cols_to_move + cols[insert_at:]]
+
     ## *-------* Comment out this block, if you intend to upload full MIS_trade_pairs history into bigquery *-------------*
     # To avoid duplicate MIS trade pairs entry, let's filter for trade dates that don't already exist in the 'kiteconnect2025.pnl_book.MIS_trade_pairs' table.
     # Before querying check if the table is without schema

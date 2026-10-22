@@ -63,7 +63,7 @@ def main():
                 
             else:
                 # Prepare 'trades' dataframe.
-                trades = trades.drop(columns=['account_id']) #dropping the redundant 'account_id' column.
+                trades = trades.drop(columns=['account_id'], errors='ignore') #dropping the redundant 'account_id' column.
                 
                 # An order may be partially filled through multiple trades, all bearing the same order_id.
                 # To consolidate, let's group by order_id (along with exchange, tradingsymbol, and product) and compute the weighted average price based on the quantity filled in each trade of an order.

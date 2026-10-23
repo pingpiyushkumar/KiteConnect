@@ -64,7 +64,7 @@ def main():
             else:
                 # Prepare 'trades' dataframe.
                 trades = trades.drop(columns=['account_id'], errors='ignore') #dropping the redundant 'account_id' column.
-                trades['order_timestamp'] = pd.to_datetime(trades['order_timestamp'], errors='coerce')
+                trades['order_timestamp'] = pd.to_datetime(trades['fill_timestamp']).dt.strftime('%Y-%m-%d') + ' ' + pd.to_datetime(trades['order_timestamp']).dt.strftime('%H:%M:%S')
 
                 
                 # An order may be partially filled through multiple trades, all bearing the same order_id.

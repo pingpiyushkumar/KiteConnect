@@ -73,7 +73,7 @@ def main():
                 def weighted_avg_price(order_group):
                     return (order_group['average_price'] *order_group['quantity']).sum() / order_group['quantity'].sum()
                 
-                col_order = trades.columns.tolist()
+                #col_order = trades.columns.tolist()
                 trades = trades.groupby(['order_id', 'exchange', 'tradingsymbol', 'product'], as_index=False).apply(
                     lambda order_group: pd.Series({
                         'quantity': order_group['quantity'].sum(),
@@ -87,7 +87,23 @@ def main():
                         'trade_id': order_group['trade_id'].iloc[0],     
                     })).reset_index(drop=True)
 
-                trades = trades[col_order] # restore original column order
+                #trades = trades[col_order] # restore original column order
+                backup_sheet_columns = [
+                    'trade_id',
+                    'order_id',
+                    'exchange',
+                    'tradingsymbol',
+                    'instrument_token',
+                    'product',
+                    'average_price',
+                    'quantity',
+                    'exchange_order_id',
+                    'transaction_type',
+                    'fill_timestamp',
+                    'order_timestamp',
+                    'exchange_timestamp'
+                ]
+                trades = trades['backup_sheet_columns']
                 
                 # Also, append the trades to the Google Sheet as backup, upload only the trades that don't already exist in backup sheet.
                 backup_sheet = [ws for ws in spreadsheet.worksheets() if ws.id == 0][0]

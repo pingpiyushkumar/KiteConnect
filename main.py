@@ -103,7 +103,7 @@ def main():
                     'order_timestamp',
                     'exchange_timestamp'
                 ]
-                trades = trades['backup_sheet_columns']
+                trades = trades[backup_sheet_columns]
                 
                 # Also, append the trades to the Google Sheet as backup, upload only the trades that don't already exist in backup sheet.
                 backup_sheet = [ws for ws in spreadsheet.worksheets() if ws.id == 0][0]

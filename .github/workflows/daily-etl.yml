@@ -29,4 +29,13 @@ jobs:
           credentials_json: ${{ secrets.GCP_KEY_JSON }}        
 
       - name: Run ETL script
-        run: python main.py || (sleep 7200 && python main.py)
+        run: |
+          python main.py || {
+            if [ "${{ github.event_name }}" = "schedule" ]; then
+              echo "Scheduled run failed. Retrying in 2 hours..."
+              sleep 7200
+              python main.py
+            else
+              exit 1
+            fi
+          }

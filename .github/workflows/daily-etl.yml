@@ -29,4 +29,4 @@ jobs:
           credentials_json: ${{ secrets.GCP_KEY_JSON }}        
 
       - name: Run ETL script
-        run: python main.py
+        run: python main.py || python main.py

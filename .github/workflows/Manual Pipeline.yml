@@ -1,4 +1,3 @@
-```yaml
 name: Manual Trade Pipeline
 
 on:
@@ -20,4 +19,3 @@ jobs:
   sync_trade_pairs:
     name: Sync Trade Pairs to Gsheet
     uses: ./.github/workflows/sync_trade_pairs_to_gsheet-etl.yml
-```

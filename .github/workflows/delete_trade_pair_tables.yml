@@ -1,0 +1,40 @@
+name: Delete MIS-NRML Trade Pair Tables
+
+on:
+  workflow_dispatch:
+
+jobs:
+  delete-tables:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_KEY_JSON }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install google-cloud-bigquery
+
+      - name: Delete MIS and NRML tables
+        run: |
+          python - <<'PY'
+          from google.cloud import bigquery
+
+          client = bigquery.Client()
+
+          tables = [
+              "kiteconnect2025.tradebook.mis_trade_pairs",
+              "kiteconnect2025.tradebook.nrml_trade_pairs",
+          ]
+
+          for table_id in tables:
+              print(f"Deleting table: {table_id}")
+              client.delete_table(table_id, not_found_ok=True)
+              print(f"Deleted (or already absent): {table_id}")
+          PY

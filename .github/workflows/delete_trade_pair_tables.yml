@@ -1,10 +1,10 @@
-name: Delete MIS-NRML Trade Pair Tables
+name: Recreate MIS-NRML Trade Pair Tables
 
 on:
   workflow_dispatch:
 
 jobs:
-  delete-tables:
+  recreate-tables:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,10 +18,10 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install BigQuery dependency
         run: pip install google-cloud-bigquery
 
-      - name: Delete MIS and NRML tables
+      - name: Recreate MIS and NRML tables
         run: |
           python - <<'PY'
           from google.cloud import bigquery
@@ -34,7 +34,11 @@ jobs:
           ]
 
           for table_id in tables:
-              print(f"Deleting table: {table_id}")
+              print(f"Deleting existing table: {table_id}")
               client.delete_table(table_id, not_found_ok=True)
-              print(f"Deleted (or already absent): {table_id}")
+
+              print(f"Creating empty table: {table_id}")
+              client.create_table(bigquery.Table(table_id))
+
+              print(f"Successfully recreated: {table_id}")
           PY

@@ -4,6 +4,7 @@ on:
   schedule:
     - cron: '5 21 * * 1-5'  # Runs Mon-Fri at 9:05 PM UTC i.e 02:35 AM IST
   workflow_dispatch:       # Allow manual run
+  workflow_call:
 
 jobs:
   run-etl:

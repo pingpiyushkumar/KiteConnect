@@ -29,8 +29,8 @@ jobs:
           client = bigquery.Client()
 
           tables = [
-              "kiteconnect2025.tradebook.mis_trade_pairs",
-              "kiteconnect2025.tradebook.nrml_trade_pairs",
+              "kiteconnect2025.tradebook.MIS_trade_pairs",
+              "kiteconnect2025.tradebook.NRML_trade_pairs",
           ]
 
           for table_id in tables:

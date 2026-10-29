@@ -1,0 +1,23 @@
+```yaml
+name: Manual Trade Pipeline
+
+on:
+  workflow_dispatch:
+
+jobs:
+  push_backup_to_bigquery:
+    name: Push Gsheet Trades to Bigquery
+    uses: ./.github/workflows/push_backup_gsheet_trades_to_bigquery.yml
+
+  mis_trade_pairs:
+    name: MIS Trade Pairs ETL
+    uses: ./.github/workflows/mis_trade_pairs-etl.yml
+
+  nrml_trade_pairs:
+    name: NRML Trade Pairs ETL
+    uses: ./.github/workflows/nrml_trade_pairs-etl.yml
+
+  sync_trade_pairs:
+    name: Sync Trade Pairs to Gsheet
+    uses: ./.github/workflows/sync_trade_pairs_to_gsheet-etl.yml
+```

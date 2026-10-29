@@ -10,12 +10,15 @@ jobs:
 
   mis_trade_pairs:
     name: MIS Trade Pairs ETL
+    needs: push_backup_to_bigquery
     uses: ./.github/workflows/mis_trade_pairs-etl.yml
 
   nrml_trade_pairs:
     name: NRML Trade Pairs ETL
+    needs: mis_trade_pairs
     uses: ./.github/workflows/nrml_trade_pairs-etl.yml
 
   sync_trade_pairs:
     name: Sync Trade Pairs to Gsheet
+    needs: nrml_trade_pairs
     uses: ./.github/workflows/sync_trade_pairs_to_gsheet-etl.yml
